@@ -1,0 +1,11 @@
+const express = require('express');
+const route = express.Router();
+
+// Import du fichier "User.js" du dossier "Router"
+const userCtrl = require('../controllers/user');
+
+// Les route post pour la connexion ou cration de compte
+route.post('/signup', userCtrl.signUp);
+
+
+module.exports = route;
