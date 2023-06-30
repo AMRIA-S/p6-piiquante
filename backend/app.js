@@ -4,7 +4,7 @@ const app = express();
 
 // Import du fichier "user.js" du dossier "router"
 const userRoute = require('./routes/user');
-
+app.use(express.json());
 // Pour éviter les erreurs CORS
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -12,9 +12,8 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     next();
   });
-  
 
-  app.use('/api/auth/', userRoute), console.log('oki');
+  app.use('/api/auth/', userRoute);
 
 // Importation de mongoose et connexion à MongoDb
 const mongoose = require('mongoose');
@@ -25,7 +24,7 @@ mongoose.connect('mongodb+srv://amriasollene:piiquante@piiquante.8n4sb6w.mongodb
   .catch(() => console.log('Erreur de connexion'));
 
 
-app.use(express.json());
+
 
 // Exportation du fichier "App.js"
 module.exports = app;
