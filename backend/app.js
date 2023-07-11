@@ -2,9 +2,16 @@
 const express = require('express')
 const app = express();
 
-// Import du fichier "user.js" du dossier "router"
+// Import des fichiers dans le dossier "/routes"
 const userRoute = require('./routes/user');
+
+// Importation chemin (path) et et finchier multer.js
+const path = require('path');
+const multer = require('./multer/multer')
+
+
 app.use(express.json());
+
 // Pour éviter les erreurs CORS
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -13,14 +20,18 @@ app.use((req, res, next) => {
     next();
   });
 
-  app.use('/api/auth/', userRoute);
+// Route pour s'authentifier
+app.use('/api/auth', userRoute, multer); 
+
+// Chemin statique des images
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 // Importation de mongoose et connexion à MongoDb
 const mongoose = require('mongoose');
 mongoose.connect('mongodb+srv://amriasollene:piiquante@piiquante.8n4sb6w.mongodb.net/?retryWrites=true&w=majority',
   { useNewUrlParser: true,
     useUnifiedTopology: true })
-  .then(() => console.log('Connexion réussie'))
+  .then(() => console.log('Connecté à Mongoose'))
   .catch(() => console.log('Erreur de connexion'));
 
 
