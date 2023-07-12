@@ -4,10 +4,10 @@ const app = express();
 
 // Import des fichiers dans le dossier "/routes"
 const userRoute = require('./routes/user');
+const routeSauces = require('./routes/sauces');
 
 // Importation chemin (path) et et finchier multer.js
 const path = require('path');
-const multer = require('./multer/multer')
 
 
 app.use(express.json());
@@ -21,7 +21,9 @@ app.use((req, res, next) => {
   });
 
 // Route pour s'authentifier
-app.use('/api/auth', userRoute, multer); 
+app.use('/api/auth', userRoute); 
+
+app.get('/api/sauces', routeSauces);
 
 // Chemin statique des images
 app.use('/images', express.static(path.join(__dirname, 'images')));
