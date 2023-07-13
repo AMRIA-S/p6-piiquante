@@ -20,16 +20,17 @@ app.use((req, res, next) => {
     next();
   });
 
-// Route pour s'authentifier
-app.use('/api/auth', userRoute); 
-
-app.get('/api/sauces', routeSauces);
-
 // Chemin statique des images
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
+// Route Utilisées
+app.use('/api/auth', userRoute);
+app.get('/api/sauces', routeSauces);
+app.post('/api/sauces', routeSauces);
+
 // Importation de mongoose et connexion à MongoDb
 const mongoose = require('mongoose');
+const sauces = require('./models/sauces');
 mongoose.connect('mongodb+srv://amriasollene:piiquante@piiquante.8n4sb6w.mongodb.net/?retryWrites=true&w=majority',
   { useNewUrlParser: true,
     useUnifiedTopology: true })
