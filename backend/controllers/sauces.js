@@ -7,17 +7,18 @@ exports.getAll = (req, res, next) => {
 };
 
 exports.create = (req, res, next) => {
-    const reqSauce = JSON.parse(req.body.sauce);
-    delete reqSauce._id;
-    delete reqSauce.userId;
-    const sauces = new Sauces({
-         ...reqSauce,
-         userId: req.auth.userId,
-         image: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-    });
 
-    sauces.save()
-        .then(() => { res.status(201).json({ message: 'Sauce ajoutée'}) })
-        .catch(error => { res.status(401).json({ error }) });
+  const reqSauce = JSON.parse(req.body.sauce);
 
+  delete reqSauce._id;
+  delete reqSauce.userId;
+  const sauces = new Sauces({
+    ...reqSauce,
+    userId: req.auth.userId,
+    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+  });
+ 
+  sauces.save()
+    .then(() => { res.status(201).json({ message: 'ok ' + req.file.filename }) })
+    .catch((error) => { res.status(401).json({ error }) });
 };

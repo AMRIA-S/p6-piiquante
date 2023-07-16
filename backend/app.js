@@ -6,11 +6,18 @@ const app = express();
 const userRoute = require('./routes/user');
 const routeSauces = require('./routes/sauces');
 
-// Importation chemin (path) et et finchier multer.js
-const path = require('path');
+//const multer = require('multer');
+// Pour enregistrer les fichiers (nom et chemin)
 
 
 app.use(express.json());
+// Importation chemin (path) et et finchier multer.js
+const path = require('path');
+
+// Chemin statique des images
+app.use('/images', express.static(path.join(__dirname, "images")));
+
+
 
 // Pour éviter les erreurs CORS
 app.use((req, res, next) => {
@@ -20,17 +27,17 @@ app.use((req, res, next) => {
     next();
   });
 
-// Chemin statique des images
-app.use('/images', express.static(path.join(__dirname, 'images')));
-
 // Route Utilisées
 app.use('/api/auth', userRoute);
 app.get('/api/sauces', routeSauces);
 app.post('/api/sauces', routeSauces);
 
+
+
+
+
 // Importation de mongoose et connexion à MongoDb
 const mongoose = require('mongoose');
-const sauces = require('./models/sauces');
 mongoose.connect('mongodb+srv://amriasollene:piiquante@piiquante.8n4sb6w.mongodb.net/?retryWrites=true&w=majority',
   { useNewUrlParser: true,
     useUnifiedTopology: true })
