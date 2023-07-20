@@ -11,8 +11,6 @@ const fileType = {
     'image/webp': 'webp'
 };
 
-
-
 // Pour enregistrer les fichiers (nom et chemin)
 const storage = multer.diskStorage({
     // Chemin de la destination où le fichier sera enregistré
@@ -24,11 +22,11 @@ const storage = multer.diskStorage({
 
         // Met tiret du bas "_" à la place des espaces " "
         const name = file.originalname.split('.')[0].split(' ').join('_');
-        console.log(file.originalname);
-
+        const date = new Date();
+        const dateDuJour = date.toLocaleDateString("fr").split('/').join('');
 
         // callback pour renomer l'image avec la date du jour
-        callback(null, name + "." + format);
+        callback(null, name + dateDuJour + "." + format);
     }
 });
 
