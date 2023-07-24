@@ -30,7 +30,7 @@ app.use('/api/auth', userRoute);
 app.get('/api/sauces', routeSauces);
 app.post('/api/sauces', routeSauces);
 app.get('/api/sauces/:id', routeSauces);
-// app.put('/api/sauces/:id', routeSauces);
+app.put('/api/sauces/:id', routeSauces);
 app.delete('/api/sauces/:id', routeSauces);
 
 // Importation de mongoose et connexion à MongoDb

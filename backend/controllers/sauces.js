@@ -29,43 +29,46 @@ exports.getOne = (req, res, next) => {
     .catch(error => res.status(404).json({ error }));
 };
 
-// exports.modify = (req, res, next) => {
-//   const reqSauces = req.file ? {
-//     ...JSON.parse(req.body.sauce),
-//     imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-//   } : { ...req.body };
+exports.modify = (req, res, next) => {
+  const reqSauces = req.file ? {
+    ...JSON.parse(req.body.sauce),
+    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+    } : { ...req.body };
 
-//   delete reqSauces.userId;
-//   Sauces.findOne({ _id: req.params.id })
-//     .then ((sauce) => {
-//       if(sauce.userId != req.auth.userId){
-//         res.status(403).json({ message: 'Non-autorisée' });
-//       } else {
-//         Sauces.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id })
-//           .then(() => res.status(200).json({ message: 'Sauces modifiée' }))
-//           .catch(error => res.status(400).json({ error }));
-//       }
-//     })
-//     .catch( error => {res.status(401).json({ error })});
-// };
+    
+  Sauces.findOne({ _id: req.params.id })
+    .then ((sauce) => {
+      // Supprime l'image d'avant si on la modifié
+      if (req.file){
+      const imgSupp = sauce.imageUrl.split('/images/')[1];
+      fs.unlinkSync(`backend/images/${imgSupp}`)
+      };
+
+      if(sauce.userId != req.auth.userId){
+        res.status(403).json({ message: 'Non-autorisée' });
+      } else {
+          Sauces.updateOne({ _id: req.params.id }, reqSauces)
+            .then(() => res.status(201).json({ message: 'Sauces modifiée' }))
+            .catch(error => res.status(400).json({ error }));
+      };
+    })
+    .catch( error => {res.status(401).json({ error })});
+};
 
 exports.delete = (req, res, next) => {
   Sauces.findOne({ _id: req.params.id })
-      .then(sauce => {
-        if (sauce.userId != req.auth.userId){
-          res.status(403).json({ message: 'Non-autorisé' })
-        } else {
-
-/*--------------------------img à supp du dossier '../images'--------------------*/
-          const imgSupp = sauce.imageUrl.split('/images/')[1];
-          fs.unlink(`backend/images/${imgSupp}`, () => {
-/*-------------------------------------------------------------------------------*/
-
-              Sauces.deleteOne({ _id: req.params.id })
-                .then(() => {res.status(200).json({ message: 'Sauce supprimée' })})
-                .catch(error => {res.status(401).json({ error })});
-          })  
-        }
-      })
+    .then(sauce => {
+      if (sauce.userId != req.auth.userId){
+        res.status(403).json({ message: 'Non-autorisé' })
+      } else {
+        const imgSupp = sauce.imageUrl.split('/images/')[1];
+    
+        fs.unlink(`backend/images/${imgSupp}`, () => {
+          Sauces.deleteOne({ _id: req.params.id })
+            .then(() => {res.status(200).json({ message: 'Sauce supprimée' })})
+            .catch(error => {res.status(401).json({ error })});
+        })  
+      }
+  })
     .catch(error => res.status(500).json({ error }));
 };
