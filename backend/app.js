@@ -32,6 +32,7 @@ app.post('/api/sauces', routeSauces);
 app.get('/api/sauces/:id', routeSauces);
 app.put('/api/sauces/:id', routeSauces);
 app.delete('/api/sauces/:id', routeSauces);
+app.post('/api/sauces/:id/like', routeSauces);
 
 // Importation de mongoose et connexion à MongoDb
 const mongoose = require('mongoose');
