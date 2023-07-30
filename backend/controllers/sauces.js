@@ -15,9 +15,7 @@ exports.create = (req, res, next) => {
   const sauces = new Sauces({
     ...reqSauce,
     userId: req.auth.userId,
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-    likes: 0,
-    dislikes: 0
+    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
   });
  
   sauces.save()
@@ -35,24 +33,28 @@ exports.modify = (req, res, next) => {
   const reqSauces = req.file ? {
     ...JSON.parse(req.body.sauce),
     imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-    } : { ...req.body };
+  } : { ...req.body };
 
     
   Sauces.findOne({ _id: req.params.id })
     .then ((sauce) => {
-      // Supprime l'image d'avant si on la modifié
-      if (req.file){
-      const imgSupp = sauce.imageUrl.split('/images/')[1];
-      fs.unlinkSync(`backend/images/${imgSupp}`)
-      };
+    
+      if(sauce === null) {
+        res.status(404).json({message: 'nexiste pas'})
 
-      if(sauce.userId != req.auth.userId){
-        res.status(403).json({ message: 'Non-autorisée' });
-      } else {
-          Sauces.updateOne({ _id: req.params.id }, reqSauces)
-            .then(() => res.status(201).json({ message: 'Sauces modifiée' }))
-            .catch(error => res.status(400).json({ error }));
+      } else if (sauce.userId != req.auth.userId){
+          res.status(403).json({ message: 'Non-autorisé' });
+
+      } else if (req.file) {
+        const imgSupp = sauce.imageUrl.split('/images/')[1];
+
+        fs.unlinkSync(`backend/images/${imgSupp}`);
       };
+          Sauces.updateOne({ _id: req.params.id }, { ...reqSauces })
+            .then(() => res.status(200).json({ message: 'Sauce modifiée' }))
+            .catch(error => res.status(400).json({ error }));
+          
+      
     })
     .catch( error => {res.status(401).json({ error })});
 };
@@ -60,8 +62,13 @@ exports.modify = (req, res, next) => {
 exports.delete = (req, res, next) => {
   Sauces.findOne({ _id: req.params.id })
     .then(sauce => {
-      if (sauce.userId != req.auth.userId){
+
+      if(sauce === null) {
+        res.status(404).json({message: 'nexiste pas'})
+
+      } else if (sauce.userId != req.auth.userId){
         res.status(403).json({ message: 'Non-autorisé' })
+
       } else {
         const imgSupp = sauce.imageUrl.split('/images/')[1];
     
@@ -76,41 +83,50 @@ exports.delete = (req, res, next) => {
 };
 
 exports.likeSauces = (req, res, next) => {
-  // const userId = req.auth.userId;
-  // const likes = req.body.like;
 
   Sauces.findOne({ _id: req.params.id })
     .then(sauce => {
 
       const likesOrDislikes = {
-        usersLiked: [],
-        usersDisliked: [],
-        likes: 0,
-        dislikes: 0
+        usersLiked: sauce.usersLiked,
+        usersDisliked: sauce.usersDisliked,
+        likes: sauce.likes,
+        dislikes: sauce.dislikes
       };
 
-      // L'utilisateur like
-      if (req.body.like === 1) {
-        likesOrDislikes.usersLiked.push(req.auth.userId);
-        likesOrDislikes.likes = likesOrDislikes.usersLiked.length;
+      if(sauce === null) {
+        res.status(404).json({message: 'nexiste pas'})
 
-        // L'utilisateur dislike
-      } else if (req.body.like === -1) {
-        likesOrDislikes.usersDisliked.push(req.auth.userId);
-        likesOrDislikes.dislikes = likesOrDislikes.usersDisliked.length;
-
-        // L'utilisateur annule son like ou son dislike
-      } else if (req.body.like === 0) {
-        if(likesOrDislikes.usersLiked.includes(req.auth.userId)){
-          likesOrDislikes.usersLiked.splice(req.auth.userId);
+        // L'utilisateur like
+      } else if (req.body.like === 1) {
+          likesOrDislikes.usersLiked.push(req.auth.userId);
           likesOrDislikes.likes = likesOrDislikes.usersLiked.length;
-        } else if (likesOrDislikes.usersDisliked.includes(req.auth.userId)) {
-          likesOrDislikes.usersDisliked.splice(req.auth.userId);
-          likesOrDislikes.dislikes = likesOrDislikes.usersDisliked.length;
-        };
-      };
 
-      Sauces.updateOne({ _id: req.params.id }, likesOrDislikes)
+          // L'utilisateur dislike
+        } else if (req.body.like === -1) {
+          likesOrDislikes.usersDisliked.push(req.auth.userId);
+          likesOrDislikes.dislikes = likesOrDislikes.usersDisliked.length;
+
+          // L'utilisateur annule son like ou son dislike
+        } else if (req.body.like === 0) {
+
+          // Pour son like
+          if(likesOrDislikes.usersLiked.includes(req.auth.userId)){
+            const filtre = likesOrDislikes.usersLiked.filter(userId => userId != req.auth.userId);
+            likesOrDislikes.usersLiked = filtre;
+            likesOrDislikes.likes = likesOrDislikes.usersLiked.length;
+
+          // Pour son dislike
+          } else if (likesOrDislikes.usersDisliked.includes(req.auth.userId)) {
+            const filtre = likesOrDislikes.usersDisliked.filter(userId => userId != req.auth.userId);
+            likesOrDislikes.usersDisliked = filtre;
+            likesOrDislikes.dislikes = likesOrDislikes.usersDisliked.length;
+          };
+        };
+      
+    
+
+      Sauces.updateOne({ _id: req.params.id }, { ...likesOrDislikes })
         .then(() => res.status(200).json({ message: 'Merci de votre avis' }))
         .catch(error => res.status(400).json({ error }));
       })
