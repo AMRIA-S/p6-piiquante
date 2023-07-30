@@ -34,9 +34,14 @@ app.put('/api/sauces/:id', routeSauces);
 app.delete('/api/sauces/:id', routeSauces);
 app.post('/api/sauces/:id/like', routeSauces);
 
+require('dotenv').config()
+const MONGODB_PASSWORD = process.env.MONGODB_PASSWORD;
+const MONGODB_USERNAME = process.env.MONGODB_USERNAME;
+
+
 // Importation de mongoose et connexion à MongoDb
 const mongoose = require('mongoose');
-mongoose.connect('mongodb+srv://amriasollene:piiquante@piiquante.8n4sb6w.mongodb.net/?retryWrites=true&w=majority',
+mongoose.connect(`mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@piiquante.8n4sb6w.mongodb.net/?retryWrites=true&w=majority`,
   { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connecté à Mongoose'))

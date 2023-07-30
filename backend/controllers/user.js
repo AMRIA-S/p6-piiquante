@@ -2,6 +2,11 @@ const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+// Variable du fichier .env
+require('dotenv').config()
+const AUTH_TOKEN = process.env.AUTH_TOKEN;
+
+
 // Exportation de la fonction signUp
 exports.signUp = (req, res, next) => {
     // Function hash pour scripter le mot de passe
@@ -28,8 +33,10 @@ exports.log = (req, res, next) => {
             if (!user) {
                 return res.status(401).json({ message: 'Identifiant ou mot de passe incorrect'});
             }
+            
             // Sinon comparer les mots de passe
             bcrypt.compare(req.body.password, user.password)
+            
                 .then(valid => {
                     // Si mdp pas correct => erreur
                     if (!valid) {
@@ -40,7 +47,7 @@ exports.log = (req, res, next) => {
                         userId: user._id,
                         token: jwt.sign(
                             { userId: user._id },
-                            'CLE_SECRETE_POUR_DECODER_LE_TOKEN',
+                            AUTH_TOKEN,
                             { expiresIn: '12h' }
                         )
                     });

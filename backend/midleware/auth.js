@@ -1,5 +1,10 @@
 const jwt = require('jsonwebtoken');
 
+// Variable du fichier .env
+require('dotenv').config()
+const AUTH_TOKEN = process.env.AUTH_TOKEN;
+
+
 module.exports = (req, res, next) => {
     // Pour éviter les pb
     try {
@@ -7,7 +12,9 @@ module.exports = (req, res, next) => {
         const token = req.headers.authorization.split(' ')[1];
         // Recup token avec le code crypter
         // Vrify pour vérifier la validité du token
-        const decodeToken = jwt.verify(token, 'CLE_SECRETE_POUR_DECODER_LE_TOKEN');
+        
+        const decodeToken = jwt.verify(token, AUTH_TOKEN);
+        
         const userId = decodeToken.userId;
         req.auth = {
             userId: userId

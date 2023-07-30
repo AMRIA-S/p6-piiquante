@@ -34,11 +34,12 @@ exports.modify = (req, res, next) => {
     ...JSON.parse(req.body.sauce),
     imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
   } : { ...req.body };
-
     
   Sauces.findOne({ _id: req.params.id })
     .then ((sauce) => {
-    
+
+      delete reqSauces.userId;
+
       if(sauce === null) {
         res.status(404).json({message: 'nexiste pas'})
 
@@ -87,6 +88,8 @@ exports.likeSauces = (req, res, next) => {
   Sauces.findOne({ _id: req.params.id })
     .then(sauce => {
 
+      //delete req.body.userId;
+
       const likesOrDislikes = {
         usersLiked: sauce.usersLiked,
         usersDisliked: sauce.usersDisliked,
@@ -95,19 +98,24 @@ exports.likeSauces = (req, res, next) => {
       };
 
       if(sauce === null) {
-        res.status(404).json({message: 'nexiste pas'})
+        res.status(404).json({message: "La sauce recherchée n'existe pas"});
+
+      // Si l'utilisateur like sa propre sauce
+      } else if (req.auth.userId === sauce.userId) {
+        res.status(403).json({message: 'Vous ne pouvez pas liker/disliker votre sauce'});
+      } else {
 
         // L'utilisateur like
-      } else if (req.body.like === 1) {
+        if (req.body.like === 1) {
           likesOrDislikes.usersLiked.push(req.auth.userId);
           likesOrDislikes.likes = likesOrDislikes.usersLiked.length;
-
-          // L'utilisateur dislike
+            
+        // L'utilisateur dislike
         } else if (req.body.like === -1) {
           likesOrDislikes.usersDisliked.push(req.auth.userId);
           likesOrDislikes.dislikes = likesOrDislikes.usersDisliked.length;
 
-          // L'utilisateur annule son like ou son dislike
+        // L'utilisateur annule son like ou son dislike
         } else if (req.body.like === 0) {
 
           // Pour son like
@@ -123,8 +131,7 @@ exports.likeSauces = (req, res, next) => {
             likesOrDislikes.dislikes = likesOrDislikes.usersDisliked.length;
           };
         };
-      
-    
+      };
 
       Sauces.updateOne({ _id: req.params.id }, { ...likesOrDislikes })
         .then(() => res.status(200).json({ message: 'Merci de votre avis' }))
