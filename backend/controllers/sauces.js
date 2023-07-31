@@ -34,12 +34,10 @@ exports.modify = (req, res, next) => {
     ...JSON.parse(req.body.sauce),
     imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
   } : { ...req.body };
+
     
   Sauces.findOne({ _id: req.params.id })
     .then ((sauce) => {
-
-      delete reqSauces.userId;
-
       if(sauce === null) {
         res.status(404).json({message: 'nexiste pas'})
 
@@ -48,14 +46,12 @@ exports.modify = (req, res, next) => {
 
       } else if (req.file) {
         const imgSupp = sauce.imageUrl.split('/images/')[1];
-
-        fs.unlinkSync(`backend/images/${imgSupp}`);
+        fs.unlinkSync(`images/${imgSupp}`);
       };
+     
           Sauces.updateOne({ _id: req.params.id }, { ...reqSauces })
             .then(() => res.status(200).json({ message: 'Sauce modifiée' }))
             .catch(error => res.status(400).json({ error }));
-          
-      
     })
     .catch( error => {res.status(401).json({ error })});
 };
@@ -73,7 +69,7 @@ exports.delete = (req, res, next) => {
       } else {
         const imgSupp = sauce.imageUrl.split('/images/')[1];
     
-        fs.unlink(`backend/images/${imgSupp}`, () => {
+        fs.unlink(`images/${imgSupp}`, () => {
           Sauces.deleteOne({ _id: req.params.id })
             .then(() => {res.status(200).json({ message: 'Sauce supprimée' })})
             .catch(error => {res.status(401).json({ error })});
