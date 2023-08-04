@@ -31,7 +31,7 @@ exports.log = (req, res, next) => {
         .then(user => {
             // Si email n'existe pas => erreur
             if (!user) {
-                return res.status(401).json({ message: 'Identifiant ou mot de passe incorrect'});
+                return res.status(400).json({ message: 'Identifiant ou mot de passe incorrect'});
             }
             
             // Sinon comparer les mots de passe
@@ -40,7 +40,7 @@ exports.log = (req, res, next) => {
                 .then(valid => {
                     // Si mdp pas correct => erreur
                     if (!valid) {
-                        return res.status(401).json({ message: 'Identifiant ou mot de passe incorrect' });
+                        return res.status(403).json({ message: 'Identifiant ou mot de passe incorrect' });
                     }
                     // Sinon recup token et id
                     res.status(200).json({

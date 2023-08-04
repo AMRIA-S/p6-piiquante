@@ -11,6 +11,9 @@
         "mongoose-unique-validator": "^4.0.0",
         "multer": "^1.4.5-lts.1",
         "nodemon": "^3.0.1",
+        "resizer-image": "^1.0.5",
+        "sharp": "^0.32.4",
+        "sharp-multer": "^0.3.0",
         "unlink": "^0.0.2",
         "uuid": "^9.0.0"
     },
