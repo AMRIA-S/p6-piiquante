@@ -1,5 +1,7 @@
 const Sauces = require('../models/sauces');
 const fs = require('fs');
+const sharp = require('sharp');
+
 
 
 exports.getAll = (req, res, next) => {
@@ -15,15 +17,31 @@ exports.create = (req, res, next) => {
   delete reqSauce._id;
   delete reqSauce.userId;
 
-  const sauces = new Sauces({
-    ...reqSauce,
-    userId: req.auth.userId,
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-  });
- 
-  sauces.save()
-    .then(() => {res.status(201).json({ message: 'Sauce ajoutée' })})
-    .catch((error) => {res.status(400).json({ error })});
+  if (req.file) {  
+    // Redimentionne l'image
+    sharp(`images/${req.file.filename}`)
+      .resize(null, 200)
+      .toFile(`images/resize_${req.file.filename}`, (err, info) => { 
+        if(err) {
+          console.error(err);
+        } else {
+          // Supprime l'image non-redimentionner
+          fs.unlinkSync(`images/${req.file.filename}`)
+        }
+      });
+  }
+    
+    const sauces = new Sauces({
+      ...reqSauce,
+      userId: req.auth.userId,
+      imageUrl: `${req.protocol}://${req.get('host')}/images/resize_${req.file.filename}`
+    });
+
+  
+    sauces.save()
+      .then(() => {res.status(201).json({ message: 'Sauce ajoutée' })})
+      .catch((error) => {res.status(400).json({ error })});
+
 };
 
 
@@ -37,11 +55,6 @@ exports.getOne = (req, res, next) => {
 
 
 exports.modify = (req, res, next) => {
-  const reqSauces = req.file ? {
-    ...JSON.parse(req.body.sauce),
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-  } : { ...req.body };
-    
    Sauces.findOne({ _id: req.params.id })
     .then ((sauce) => {
       if(sauce === null) {
@@ -51,9 +64,27 @@ exports.modify = (req, res, next) => {
           res.status(403).json({ message: 'Non-autorisé' });
 
       } else if (req.file) {
-        const imgSupp = sauce.imageUrl.split('/images/')[1];
-        fs.unlinkSync(`images/${imgSupp}`);
-      };
+        // Redimentionne l'image
+        sharp(`images/${req.file.filename}`)
+          .resize(null, 200)
+          .toFile(`images/resize_${req.file.filename}`, (err, info) => { 
+            if(err) {
+              console.error(err);
+            } else {
+              // Supprime l'image non-redimentionner
+              fs.unlinkSync(`images/${req.file.filename}`)
+
+              // Supprime l'ancienne image
+              const oldImgSupp = sauce.imageUrl.split('/images/')[1];
+              fs.unlinkSync(`images/${oldImgSupp}`);
+            }
+      });
+    };
+
+      const reqSauces = req.file ? {
+        ...JSON.parse(req.body.sauce),
+        imageUrl: `${req.protocol}://${req.get('host')}/images/resize_${req.file.filename}`,
+      } : { ...req.body };
 
           Sauces.updateOne({ _id: req.params.id }, { ...reqSauces })
             .then(() => res.status(200).json({ message: 'Sauce modifiée' }))
@@ -76,7 +107,7 @@ exports.delete = (req, res, next) => {
 
       } else {
         const imgSupp = sauce.imageUrl.split('/images/')[1];
-    
+
         fs.unlink(`images/${imgSupp}`, () => {
           Sauces.deleteOne({ _id: req.params.id })
             .then(() => {res.status(200).json({ message: 'Sauce supprimée' })})

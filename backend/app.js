@@ -5,7 +5,6 @@ const app = express();
 // Import des fichiers dans le dossier "/routes"
 const userRoute = require('./routes/user');
 const routeSauces = require('./routes/sauces');
-const Sauces = require('./models/sauces');
 
 // Pour éviter les erreurs CORS
 app.use((req, res, next) => {
