@@ -1,5 +1,6 @@
 // Importation d'Express et son utilisation
 const express = require('express')
+const helmet = require('helmet');
 const app = express();
 
 // Import des fichiers dans le dossier "/routes"
@@ -14,9 +15,10 @@ app.use((req, res, next) => {
   next();
 });
 
-
 app.use(express.json());
-
+app.use(helmet.contentSecurityPolicy({
+  crossOriginResourcePolicy: false
+}));
 
 // Importation chemin (path)
 const path = require('path');
