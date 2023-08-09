@@ -28,12 +28,7 @@ app.use('/images', express.static(path.join(__dirname, "images")));
 
 // Route Utilisées
 app.use('/api/auth', userRoute);
-app.get('/api/sauces', routeSauces);
-app.post('/api/sauces', routeSauces);
-app.get('/api/sauces/:id', routeSauces);
-app.put('/api/sauces/:id', routeSauces);
-app.delete('/api/sauces/:id', routeSauces);
-app.post('/api/sauces/:id/like', routeSauces);
+app.use('/api/sauces', routeSauces);
 
 require('dotenv').config()
 const MONGODB_PASSWORD = process.env.MONGODB_PASSWORD;
@@ -43,7 +38,7 @@ const MONGO_PROJECT = process.env.MONGO_PROJECT;
 
 // Importation de mongoose et connexion à MongoDb
 const mongoose = require('mongoose');
-mongoose.connect(`mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGO_PROJECT}.8n4sb6w.mongodb.net/?retryWrites=true&w=majority`,
+mongoose.connect(`mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGO_PROJECT}.mongodb.net/?retryWrites=true&w=majority`,
   { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connecté à Mongoose'))

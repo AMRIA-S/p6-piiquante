@@ -5,12 +5,12 @@ const auth = require('../midleware/auth');
 const ctrlSauce = require('../controllers/sauces');
 const multer = require('../midleware/multer');
 
-routeSauces.get('/api/sauces', auth, ctrlSauce.getAll);
-routeSauces.post('/api/sauces', auth, multer, ctrlSauce.create);
-routeSauces.get('/api/sauces/:id', auth, ctrlSauce.getOne);
-routeSauces.put('/api/sauces/:id', auth, multer, ctrlSauce.modify);
-routeSauces.delete('/api/sauces/:id', auth, ctrlSauce.delete);
-routeSauces.post('/api/sauces/:id/like', auth, ctrlSauce.likeSauces);
+routeSauces.get('/', auth, ctrlSauce.getAll);
+routeSauces.post('/', auth, multer, ctrlSauce.create);
+routeSauces.get('/:id', auth, ctrlSauce.getOne);
+routeSauces.put('/:id', auth, multer, ctrlSauce.modify);
+routeSauces.delete('/:id', auth, ctrlSauce.delete);
+routeSauces.post('/:id/like', auth, ctrlSauce.likeSauces);
 
 
 module.exports = routeSauces;
