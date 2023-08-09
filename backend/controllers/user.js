@@ -40,7 +40,7 @@ exports.log = (req, res, next) => {
                 .then(valid => {
                     // Si mdp pas correct => erreur
                     if (!valid) {
-                        return res.status(403).json({ message: 'Identifiant ou mot de passe incorrect' });
+                        return res.status(400).json({ message: 'Identifiant ou mot de passe incorrect' });
                     }
                     // Sinon recup token et id
                     res.status(200).json({
