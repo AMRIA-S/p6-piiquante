@@ -17,7 +17,7 @@
         "resize-optimize-images": "^1.1.2",
         "resizer-image": "^1.0.5",
         "sharp": "^0.32.4",
-        "sharp-multer": "^0.3.0",
+        "sharp-multer": "^0.3.3",
         "unlink": "^0.0.2",
         "uuid": "^9.0.0",
         "vips": "^1.0.0"
